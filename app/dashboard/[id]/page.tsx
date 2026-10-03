@@ -46,7 +46,7 @@ export default async function ProjectPage({ params }: { params: { id: string } }
 
       {latest && (<>
         <h2 className="mt-10 !text-2xl">Feedback on v{latest.number} <span className="text-base font-normal text-mute">({open} open)</span></h2>
-        <CommentList comments={latest.comments} />
+        <CommentList comments={latest.comments} imageUrl={latest.fileType === 'image' ? latest.fileUrl : undefined} />
       </>)}
 
       <div className="mt-10 flex flex-wrap items-center justify-between gap-3"><h2 className="!text-2xl">Versions</h2><UploadVersion projectId={project.id} /></div>
