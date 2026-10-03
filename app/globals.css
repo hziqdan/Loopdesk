@@ -1,0 +1,21 @@
+@tailwind base;@tailwind components;@tailwind utilities;
+:root{--bg:#FAFAF9;--card:#fff;--ink:#111827;--mute:#6B7280;--line:#E7E5E4;--soft:#EEF2FF;--navy:#0F172A}
+@media(prefers-color-scheme:dark){:root{--bg:#0B0F1A;--card:#131A2B;--ink:#F3F4F6;--mute:#9CA3AF;--line:#232C42;--soft:#1B2142;--navy:#060912}}
+@layer base{
+ html{scroll-behavior:smooth}
+ body{@apply bg-bg text-ink antialiased}
+ h1,h2,h3{@apply font-extrabold leading-tight tracking-tight}
+ h1{@apply text-[clamp(2.2rem,5.5vw,3.8rem)]}h2{@apply text-[clamp(1.7rem,3.5vw,2.5rem)]}h3{@apply text-lg}
+ :focus-visible{@apply outline outline-[3px] outline-offset-2 outline-brand}
+}
+@layer components{
+ .wrap{@apply mx-auto max-w-[1200px] px-6}
+ .sec{@apply py-14 text-center md:py-24}
+ .btn{@apply inline-block cursor-pointer rounded-xl border border-line bg-card px-5 py-3 text-[15px] font-semibold text-ink}
+ .btn-p{@apply border-brand bg-brand text-white hover:bg-indigo-700}
+ .card{@apply rounded-2xl border border-line bg-card p-7}
+ .lead{@apply mx-auto mt-4 max-w-xl text-lg text-mute}
+ .grid-auto{@apply mt-11 grid gap-5 text-left;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+ .btns{@apply mt-7 flex flex-wrap justify-center gap-3}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  FREE
+  PRO
+  STUDIO
+}
+
+enum ProjectStatus {
+  IN_REVIEW
+  APPROVED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  plan         Plan      @default(FREE)
+  createdAt    DateTime  @default(now())
+  projects     Project[]
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  ownerId     String
+  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name        String
+  status      ProjectStatus @default(IN_REVIEW)
+  reviewToken String        @unique // unguessable token for the client review link
+  createdAt   DateTime      @default(now())
+  versions    Version[]
+
+  @@index([ownerId])
+}
+
+model Version {
+  id        String    @id @default(cuid())
+  projectId String
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  number    Int
+  fileUrl   String
+  filePath  String
+  fileType  String // image | pdf | video
+  fileSize  Int // bytes
+  createdAt DateTime  @default(now())
+  comments  Comment[]
+  approval  Approval?
+
+  @@unique([projectId, number])
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  versionId  String
+  version    Version  @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  authorName String
+  isOwner    Boolean  @default(false)
+  body       String
+  x          Float? // pin position in percent (0 to 100); null = general comment
+  y          Float?
+  resolved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([versionId])
+}
+
+model Approval {
+  id            String   @id @default(cuid())
+  versionId     String   @unique
+  version       Version  @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  approverName  String
+  approverEmail String
+  createdAt     DateTime @default(now()) // the timestamped sign-off
+}
