@@ -24,17 +24,17 @@ export default function Form({ fields, button, ok, err, endpoint, redirect }: Pr
       try {
         const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
         const body = await res.json().catch(() => ({}))
-        if (!res.ok) return setMsg({ text: body.error ?? err, good: false })
+        if (!res.ok) return setMsg({ text: body.error ?? err, good: false }) // shows the server's reason, e.g. "Too many attempts. Try again in 12 minutes."
         setMsg({ text: ok, good: true })
-        if (redirect) { router.push(redirect); router.refresh() }
+        if (redirect) { router.push(redirect); router.refresh() } else form.reset()
       } catch {
-        setMsg({ text: 'Network error. Please try again.', good: false })
+        setMsg({ text: 'Network error. Check your connection and try again.', good: false })
       } finally {
         setBusy(false)
       }
       return
     }
-    setMsg({ text: ok, good: true }) // no endpoint yet (contact form): client-side only
+    setMsg({ text: ok, good: true }) // no endpoint: client-side only
     form.reset()
   }
 
@@ -45,6 +45,10 @@ export default function Form({ fields, button, ok, err, endpoint, redirect }: Pr
           {f.area ? <textarea name={f.name} rows={5} className={input} /> : <input name={f.name} type={f.type ?? 'text'} autoComplete={f.type === 'password' ? (endpoint?.includes('signup') ? 'new-password' : 'current-password') : f.name} className={input} />}
         </label>
       ))}
+      {/* Honeypot: people never see or fill this, bots usually do, and the server drops those submissions */}
+      <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+        <label>Website<input name="website" type="text" tabIndex={-1} autoComplete="off" /></label>
+      </div>
       <button className="btn btn-p disabled:opacity-60" type="submit" disabled={busy}>{busy ? 'Please wait…' : button}</button>
       <p role="status" className={`min-h-[1.4em] text-sm ${msg?.good ? 'text-ok' : 'text-red-600'}`}>{msg?.text}</p>
     </form>

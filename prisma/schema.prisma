@@ -26,6 +26,8 @@ model User {
   plan         Plan      @default(FREE)
   createdAt    DateTime  @default(now())
   projects     Project[]
+  stripeCustomerId String?  @unique
+  subscription Subscription?
 }
 
 model Project {
@@ -36,6 +38,7 @@ model Project {
   status      ProjectStatus @default(IN_REVIEW)
   reviewToken String        @unique // unguessable token for the client review link
   createdAt   DateTime      @default(now())
+  lastCommentEmailAt DateTime? // throttles comment emails (one per 5 minutes)
   versions    Version[]
 
   @@index([ownerId])
@@ -79,4 +82,39 @@ model Approval {
   approverName  String
   approverEmail String
   createdAt     DateTime @default(now()) // the timestamped sign-off
+}
+
+enum SubStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+model Subscription {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeSubId       String    @unique
+  plan              Plan
+  status            SubStatus
+  currentPeriodEnd  DateTime?
+  cancelAtPeriodEnd Boolean   @default(false)
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+// One row per request, so a request can be counted within a time window (works on any host, no extra service)
+model RateLimit {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
 }

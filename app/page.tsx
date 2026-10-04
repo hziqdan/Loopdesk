@@ -1,8 +1,12 @@
+import { redirect } from 'next/navigation'
 import PinDemo from '@/components/PinDemo'
 import { Button, Cards, Cta, Faq } from '@/components/ui'
+import { getUser } from '@/lib/auth'
 import { homeFaq, problems, steps, testimonials } from '@/lib/content'
 
-export default function Home() {
+export default async function Home() {
+  if (await getUser()) redirect('/dashboard') // signed-in people land on their own projects, not the sales page
+
   return (
     <>
       <section className="py-14 md:py-24"><div className="wrap grid items-center gap-12 text-center md:grid-cols-2 md:text-left">

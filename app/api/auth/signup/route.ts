@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server'
 import { createSession, hashPassword } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { rateLimit } from '@/lib/rate-limit'
 import { signupSchema } from '@/lib/validators'
 
 const fail = (error: string, code: string, status: number) => NextResponse.json({ error, code }, { status })
 
 export async function POST(req: Request) {
+  const limited = await rateLimit(req, 'signup', 5, 60 * 60 * 1000) // 5 sign-ups per hour per visitor
+  if (limited) return limited
+
   const parsed = signupSchema.safeParse(await req.json().catch(() => null))
   if (!parsed.success) return fail(parsed.error.issues[0].message, 'VALIDATION', 400)
   const { name, email, password } = parsed.data

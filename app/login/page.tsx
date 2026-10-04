@@ -1,10 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import Form from '@/components/Form'
 import { PageHero } from '@/components/ui'
+import { getUser } from '@/lib/auth'
 export const metadata: Metadata = { title: 'Log in' }
 
-export default function Login() {
+export default async function Login() {
+  if (await getUser()) redirect('/dashboard')
   return (
     <>
       <PageHero title="Welcome back." sub="Log in to see your projects and feedback." />

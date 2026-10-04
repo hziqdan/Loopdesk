@@ -37,5 +37,10 @@ export const latestVersion = (token: string) =>
   db.version.findFirst({
     where: { project: { reviewToken: token } },
     orderBy: { number: 'desc' },
-    select: { id: true, projectId: true, approval: { select: { id: true } }, _count: { select: { comments: true } } },
+    select: {
+      id: true, number: true, projectId: true,
+      approval: { select: { id: true } },
+      _count: { select: { comments: true } },
+      project: { select: { name: true, lastCommentEmailAt: true, owner: { select: { email: true, name: true } } } },
+    },
   })
